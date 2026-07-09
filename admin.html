@@ -134,34 +134,10 @@
     bankAccount:'बैंक खाता संख्या', ifsc:'IFSC कोड', bankName:'बैंक का नाम', accHolder:'खाताधारक का नाम', accRelation:'खाताधारक का संबंध'
   };
 
-  // Fields that hold date values and need timezone-safe formatting for display.
-  var dateFields = { dob:true, submittedAt:true };
-
   function toast(msg){
     var t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 2800);
-  }
-
-  // ---------- Timezone-safe date formatting ----------
-  // Google Apps Script returns Date cells as ISO strings in UTC (e.g.
-  // "2010-04-09T18:30:00.000Z" for a value stored as 10-04-2010 in IST).
-  // Converting that with `new Date(...)` and local-time methods would apply
-  // the browser's timezone again and can even shift the calendar day.
-  // Instead we read the Y-M-D digits straight out of the string, which is
-  // exactly what was stored, and format that — no timezone math at all.
-  function formatDateDisplay(value){
-    if(!value) return '—';
-    var str = String(value);
-    // Matches "YYYY-MM-DDTHH:MM:SS..." (ISO with time) or plain "YYYY-MM-DD"
-    var m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(!m) return str; // not an ISO date string, show as-is (e.g. already dd-mm-yyyy)
-    return m[3] + '-' + m[2] + '-' + m[1]; // dd-MM-yyyy
-  }
-
-  function displayValue(key, value){
-    if(dateFields[key]) return formatDateDisplay(value);
-    return (value === undefined || value === null || value === '') ? '—' : value;
   }
 
   // ---------- Password login ----------
@@ -237,7 +213,7 @@
         '<td>'+(r.studentName||'')+'</td>' +
         '<td>'+(r.pen||'')+'</td>' +
         '<td>'+(r.mobile||'')+'</td>' +
-        '<td>'+formatDateDisplay(r.submittedAt)+'</td>' +
+        '<td>'+(r.submittedAt||'')+'</td>' +
         '<td></td>';
       var actionsTd = tr.lastElementChild;
 
@@ -266,7 +242,7 @@
     var rows = '';
     Object.keys(fieldLabels).forEach(function(k){
       if(k === 'stream' && !r.stream) return;
-      rows += '<tr><td>'+fieldLabels[k]+'</td><td>'+displayValue(k, r[k])+'</td></tr>';
+      rows += '<tr><td>'+fieldLabels[k]+'</td><td>'+(r[k] || '—')+'</td></tr>';
     });
     var html =
       '<button class="modal-close" onclick="document.getElementById(\'modalOverlay\').classList.remove(\'open\')">×</button>' +
@@ -303,8 +279,6 @@
   }
 
   // ---------- CSV export (current filtered view) ----------
-  // Dates are formatted the same timezone-safe way so the exported CSV
-  // matches what's shown on screen (and in the source sheet).
   document.getElementById('exportCsvBtn').addEventListener('click', function(){
     var q = document.getElementById('searchBox').value.trim();
     var cls = document.getElementById('classFilter').value;
@@ -315,8 +289,7 @@
     var lines = [cols.join(',')];
     filtered.forEach(function(r){
       lines.push(cols.map(function(c){
-        var raw = dateFields[c] ? formatDateDisplay(r[c]) : r[c];
-        var v = String(raw === undefined || raw === null ? '' : raw).replace(/"/g, '""');
+        var v = String(r[c] === undefined ? '' : r[c]).replace(/"/g, '""');
         return '"' + v + '"';
       }).join(','));
     });
