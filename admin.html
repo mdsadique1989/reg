@@ -14,14 +14,12 @@
   body{margin:0;font-family:'Noto Sans Devanagari','Inter',sans-serif;background:var(--paper);color:var(--ink);}
   header{background:linear-gradient(180deg,var(--navy),var(--navy-dark));color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
   header h1{font-size:1.15rem;margin:0;}
-  header .who{font-size:.82rem;opacity:.85;}
-  .wrap{max-width:1200px;margin:0 auto;padding:20px 16px 60px;}
+  .wrap{max-width:1240px;margin:0 auto;padding:20px 16px 60px;}
   .signin-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;text-align:center;}
-  .signin-screen p{color:var(--muted);max-width:420px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:16px;}
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
-  .toolbar input[type=text]{flex:1;min-width:180px;padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;}
-  .toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;}
+  .toolbar input[type=text], .toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:6px;font-family:inherit;}
+  .toolbar input[type=text]{flex:1;min-width:180px;}
   button{font-family:inherit;font-size:.86rem;font-weight:600;padding:9px 14px;border-radius:6px;border:1px solid transparent;cursor:pointer;}
   .btn-primary{background:var(--navy);color:#fff;}
   .btn-secondary{background:#fff;color:var(--navy);border-color:var(--navy);}
@@ -35,7 +33,7 @@
   .count-badge{font-size:.8rem;color:var(--muted);margin-bottom:8px;}
   .modal-overlay{position:fixed;inset:0;background:rgba(10,20,40,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50;}
   .modal-overlay.open{display:flex;}
-  .modal{background:#fff;border-radius:8px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;padding:20px 22px;}
+  .modal{background:#fff;border-radius:8px;max-width:680px;width:100%;max-height:85vh;overflow-y:auto;padding:20px 22px;}
   .modal table td{white-space:normal;}
   .modal table td:first-child{color:var(--muted);width:42%;font-weight:600;}
   .modal-close{float:right;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);}
@@ -43,7 +41,6 @@
   .photo-row img{border:1px solid var(--line);border-radius:4px;}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy-dark);color:#fff;padding:10px 18px;border-radius:6px;font-size:.85rem;z-index:60;opacity:0;transition:opacity .25s;}
   .toast.show{opacity:1;}
-  .unauth-box{max-width:420px;margin:60px auto;text-align:center;}
   .hidden{display:none !important;}
 </style>
 </head>
@@ -57,27 +54,22 @@
 </header>
 
 <div class="wrap">
-
-  <!-- Password login screen -->
   <div class="signin-screen" id="signinScreen">
-    <p>यह डैशबोर्ड केवल अधिकृत स्टाफ के लिए है। कृपया एडमिन पासवर्ड दर्ज करें।<br>This dashboard is staff-only. Please enter the admin password.</p>
+    <p>यह डैशबोर्ड केवल अधिकृत स्टाफ के लिए है। कृपया एडमिन पासवर्ड दर्ज करें।</p>
     <form id="loginForm" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
       <input type="password" id="passwordInput" placeholder="Admin password" autocomplete="current-password"
         style="padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-family:inherit;min-width:220px;">
       <button type="submit" class="btn-primary">लॉगिन / Login</button>
     </form>
-    <div id="unauthMsg" class="hidden">
-      <div class="unauth-box">
-        <p style="color:var(--error);font-weight:600;">पासवर्ड गलत है / Incorrect password.</p>
-      </div>
+    <div id="unauthMsg" class="hidden" style="color:var(--error);font-weight:600;margin-top:10px;">
+      पासवर्ड गलत है / Incorrect password.
     </div>
   </div>
 
-  <!-- Dashboard (shown after successful login) -->
   <div id="dashboard" class="hidden">
     <div class="card">
       <div class="toolbar">
-        <input type="text" id="searchBox" placeholder="नाम, Application ID, PEN, मोबाइल से खोजें...">
+        <input type="text" id="searchBox" placeholder="नाम, Application ID, PEN, आधार, मोबाइल से खोजें...">
         <select id="classFilter">
           <option value="">सभी कक्षाएँ</option>
           <option>Class I</option><option>Class II</option><option>Class III</option>
@@ -93,8 +85,8 @@
         <table id="dataTable">
           <thead>
             <tr>
-              <th>Application ID</th><th>कक्षा</th><th>विद्यार्थी का नाम</th>
-              <th>PEN</th><th>मोबाइल</th><th>जमा तिथि</th><th>कार्य</th>
+              <th>Application ID</th><th>कक्षा</th><th>संकाय/समूह</th><th>विद्यार्थी का नाम</th>
+              <th>मोबाइल</th><th>जमा तिथि</th><th>कार्य</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -102,7 +94,6 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
@@ -114,17 +105,17 @@
 (function(){
   "use strict";
 
-  // ================= CONFIG =================
   var CONFIG = {
-    WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbwXS87kS6IyyC38GS6d8GOCCeZ_LqVjAhcECm_RKWQjUbSHHZCQ3Fwcq_DJRL1yML8rxQ/exec'
+    WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyoPsIQOSq5pbqVY-U22ZHTQQjwl-V3Ns_Xyh9E2CPQ46M_xQLYS8wJ4pPaudWvGITI3g/exec'
   };
-  // ============================================
 
   var adminPassword = null;
   var allRecords = [];
 
   var fieldLabels = {
-    admClass:'नामांकन कक्षा', stream:'संकाय / Stream',
+    admClass:'नामांकन कक्षा', stream:'संकाय / Stream', langGroup:'भाषा समूह (Class 9/10)',
+    subComp1:'अनिवार्य विषय 1', subComp2:'अनिवार्य विषय 2',
+    subElec1:'ऐच्छिक विषय 1', subElec2:'ऐच्छिक विषय 2', subElec3:'ऐच्छिक विषय 3', subAddl:'अतिरिक्त विषय',
     pen:'PEN संख्या', apaar:'APAAR ID', aadhar:'आधार संख्या', eshiksha:'ई-शिक्षाकोष ID',
     studentName:'विद्यार्थी का नाम', dob:'जन्म तिथि', gender:'लिंग', category:'सामाजिक श्रेणी', religion:'धर्म',
     motherName:'माता का नाम', fatherName:'पिता का नाम', aadharOwner:'आधार किसका', guardianAadhar:'अभिभावक आधार संख्या', mobile:'मोबाइल संख्या',
@@ -134,8 +125,24 @@
     bankAccount:'बैंक खाता संख्या', ifsc:'IFSC कोड', bankName:'बैंक का नाम', accHolder:'खाताधारक का नाम', accRelation:'खाताधारक का संबंध'
   };
 
-  // Fields that hold date values and need timezone-safe formatting for display.
-  var dateFields = { dob:true, submittedAt:true };
+  function formatDateDMY(value){
+    if(!value) return '';
+    var str = String(value).trim();
+    var iso = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if(iso){
+      var rest = str.slice(iso[0].length).trim();
+      var timeMatch = rest.match(/(\d{1,2}:\d{2}(:\d{2})?\s*(AM|PM|am|pm)?)/);
+      var datePart = iso[3] + '/' + iso[2] + '/' + iso[1];
+      return timeMatch ? datePart + ' ' + timeMatch[0] : datePart;
+    }
+    var dmy = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if(dmy){
+      var dd = ('0' + dmy[1]).slice(-2);
+      var mm = ('0' + dmy[2]).slice(-2);
+      return dd + '/' + mm + '/' + dmy[3];
+    }
+    return str;
+  }
 
   function toast(msg){
     var t = document.getElementById('toast');
@@ -143,28 +150,6 @@
     setTimeout(function(){ t.classList.remove('show'); }, 2800);
   }
 
-  // ---------- Timezone-safe date formatting ----------
-  // Google Apps Script returns Date cells as ISO strings in UTC (e.g.
-  // "2010-04-09T18:30:00.000Z" for a value stored as 10-04-2010 in IST).
-  // Converting that with `new Date(...)` and local-time methods would apply
-  // the browser's timezone again and can even shift the calendar day.
-  // Instead we read the Y-M-D digits straight out of the string, which is
-  // exactly what was stored, and format that — no timezone math at all.
-  function formatDateDisplay(value){
-    if(!value) return '—';
-    var str = String(value);
-    // Matches "YYYY-MM-DDTHH:MM:SS..." (ISO with time) or plain "YYYY-MM-DD"
-    var m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if(!m) return str; // not an ISO date string, show as-is (e.g. already dd-mm-yyyy)
-    return m[3] + '-' + m[2] + '-' + m[1]; // dd-MM-yyyy
-  }
-
-  function displayValue(key, value){
-    if(dateFields[key]) return formatDateDisplay(value);
-    return (value === undefined || value === null || value === '') ? '—' : value;
-  }
-
-  // ---------- Password login ----------
   document.getElementById('loginForm').addEventListener('submit', function(e){
     e.preventDefault();
     var pw = document.getElementById('passwordInput').value;
@@ -182,7 +167,6 @@
     document.getElementById('headerRight').classList.add('hidden');
   });
 
-  // ---------- Load data from backend ----------
   function loadApplications(){
     fetch(CONFIG.WEB_APP_URL, {
       method: 'POST',
@@ -202,19 +186,16 @@
         document.getElementById('headerRight').classList.remove('hidden');
         renderTable();
       })
-      .catch(function(){
-        toast('नेटवर्क त्रुटि — डेटा लोड नहीं हो सका।');
-      });
+      .catch(function(){ toast('नेटवर्क त्रुटि — डेटा लोड नहीं हो सका।'); });
   }
 
   document.getElementById('refreshBtn').addEventListener('click', loadApplications);
 
-  // ---------- Search / filter ----------
   function matchesFilter(r, q, cls){
     if(cls && r.admClass !== cls) return false;
     if(!q) return true;
     q = q.toLowerCase();
-    return ['applicationId','studentName','pen','mobile'].some(function(k){
+    return ['applicationId','studentName','pen','mobile','aadhar'].some(function(k){
       return String(r[k] || '').toLowerCase().indexOf(q) !== -1;
     });
   }
@@ -231,20 +212,28 @@
     body.innerHTML = '';
     filtered.forEach(function(r){
       var tr = document.createElement('tr');
-      tr.innerHTML =
-        '<td>'+(r.applicationId||'')+'</td>' +
-        '<td>'+(r.admClass||'')+'</td>' +
-        '<td>'+(r.studentName||'')+'</td>' +
-        '<td>'+(r.pen||'')+'</td>' +
-        '<td>'+(r.mobile||'')+'</td>' +
-        '<td>'+formatDateDisplay(r.submittedAt)+'</td>' +
-        '<td></td>';
-      var actionsTd = tr.lastElementChild;
 
+      var streamOrLang = r.stream || r.langGroup || '—';
+      var fields = [
+        r.applicationId || '',
+        r.admClass || '',
+        streamOrLang,
+        r.studentName || '',
+        r.mobile || '',
+        formatDateDMY(r.submittedAt)
+      ];
+
+      fields.forEach(function(val){
+        var td = document.createElement('td');
+        td.textContent = val;
+        tr.appendChild(td);
+      });
+
+      var actionsTd = document.createElement('td');
       var viewBtn = document.createElement('button');
       viewBtn.className = 'btn-secondary btn-sm';
       viewBtn.textContent = 'देखें';
-      viewBtn.addEventListener('click', function(){ openViewModal(r); });
+      viewBtn.onclick = function(){ openViewModal(r); };
       actionsTd.appendChild(viewBtn);
 
       actionsTd.appendChild(document.createTextNode(' '));
@@ -252,40 +241,64 @@
       var delBtn = document.createElement('button');
       delBtn.className = 'btn-danger btn-sm';
       delBtn.textContent = 'हटाएँ';
-      delBtn.addEventListener('click', function(){ deleteRecord(r); });
+      delBtn.onclick = function(){ deleteRecord(r); };
       actionsTd.appendChild(delBtn);
 
+      tr.appendChild(actionsTd);
       body.appendChild(tr);
     });
   }
   document.getElementById('searchBox').addEventListener('input', renderTable);
   document.getElementById('classFilter').addEventListener('change', renderTable);
 
-  // ---------- View modal ----------
   function openViewModal(r){
-    var rows = '';
+    var modalContent = document.getElementById('modalContent');
+    modalContent.innerHTML = '';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'modal-close';
+    closeBtn.textContent = '×';
+    closeBtn.onclick = function(){ document.getElementById('modalOverlay').classList.remove('open'); };
+    modalContent.appendChild(closeBtn);
+
+    var h3 = document.createElement('h3');
+    h3.style.color = 'var(--navy)';
+    h3.style.marginTop = '0';
+    h3.textContent = (r.applicationId || '') + (r.updatedAt ? ' (संशोधित: ' + r.updatedAt + ')' : '');
+    modalContent.appendChild(h3);
+
+    var photoRow = document.createElement('div');
+    photoRow.className = 'photo-row';
+    if(r.photoUrl){
+      var pImg = document.createElement('img');
+      pImg.src = r.photoUrl; pImg.style.cssText = 'width:90px;height:76px;object-fit:contain;';
+      photoRow.appendChild(pImg);
+    }
+    if(r.signatureUrl){
+      var sImg = document.createElement('img');
+      sImg.src = r.signatureUrl; sImg.style.cssText = 'width:130px;height:50px;object-fit:contain;';
+      photoRow.appendChild(sImg);
+    }
+    modalContent.appendChild(photoRow);
+
+    var table = document.createElement('table');
     Object.keys(fieldLabels).forEach(function(k){
-      if(k === 'stream' && !r.stream) return;
-      rows += '<tr><td>'+fieldLabels[k]+'</td><td>'+displayValue(k, r[k])+'</td></tr>';
+      if(!r[k]) return;
+      var tr = document.createElement('tr');
+      var td1 = document.createElement('td'); td1.textContent = fieldLabels[k];
+      var td2 = document.createElement('td'); td2.textContent = (k === 'dob') ? formatDateDMY(r[k]) : r[k];
+      tr.appendChild(td1); tr.appendChild(td2); table.appendChild(tr);
     });
-    var html =
-      '<button class="modal-close" onclick="document.getElementById(\'modalOverlay\').classList.remove(\'open\')">×</button>' +
-      '<h3 style="color:var(--navy);margin-top:0;">'+(r.applicationId||'')+'</h3>' +
-      '<div class="photo-row">' +
-        (r.photoUrl ? '<img src="'+r.photoUrl+'" style="width:90px;height:76px;object-fit:contain;">' : '') +
-        (r.signatureUrl ? '<img src="'+r.signatureUrl+'" style="width:130px;height:50px;object-fit:contain;">' : '') +
-      '</div>' +
-      '<table>'+rows+'</table>';
-    document.getElementById('modalContent').innerHTML = html;
+    modalContent.appendChild(table);
     document.getElementById('modalOverlay').classList.add('open');
   }
+
   document.getElementById('modalOverlay').addEventListener('click', function(e){
     if(e.target === this) this.classList.remove('open');
   });
 
-  // ---------- Delete ----------
   function deleteRecord(r){
-    if(!confirm('क्या आप वाकई "' + r.studentName + '" (' + r.applicationId + ') का आवेदन स्थायी रूप से हटाना चाहते हैं?')) return;
+    if(!confirm('क्या आप वाकई "' + (r.studentName || '') + '" (' + r.applicationId + ') का आवेदन स्थायी रूप से हटाना चाहते हैं?')) return;
     fetch(CONFIG.WEB_APP_URL, {
       method: 'POST',
       body: JSON.stringify({ action: 'adminDelete', password: adminPassword, row: r._row, applicationId: r.applicationId })
@@ -302,9 +315,6 @@
       .catch(function(){ toast('नेटवर्क त्रुटि — हटाया नहीं जा सका।'); });
   }
 
-  // ---------- CSV export (current filtered view) ----------
-  // Dates are formatted the same timezone-safe way so the exported CSV
-  // matches what's shown on screen (and in the source sheet).
   document.getElementById('exportCsvBtn').addEventListener('click', function(){
     var q = document.getElementById('searchBox').value.trim();
     var cls = document.getElementById('classFilter').value;
@@ -315,8 +325,7 @@
     var lines = [cols.join(',')];
     filtered.forEach(function(r){
       lines.push(cols.map(function(c){
-        var raw = dateFields[c] ? formatDateDisplay(r[c]) : r[c];
-        var v = String(raw === undefined || raw === null ? '' : raw).replace(/"/g, '""');
+        var v = String(r[c] === undefined ? '' : r[c]).replace(/"/g, '""');
         return '"' + v + '"';
       }).join(','));
     });
