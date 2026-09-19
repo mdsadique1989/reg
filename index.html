@@ -213,8 +213,9 @@
             <div class="err-text" data-err="pen"></div>
           </div>
           <div class="field">
-            <label for="apaar">विद्यार्थी का APAAR ID <span class="req">*</span></label>
-            <input type="text" id="apaar" maxlength="20" required>
+            <label for="apaar">विद्यार्थी का APAAR ID <span class="req" id="apaarReq">*</span></label>
+            <input type="text" id="apaar" maxlength="20">
+            <div class="hint">Class I के विद्यार्थियों के लिए APAAR ID वैकल्पिक है।</div>
             <div class="err-text" data-err="apaar"></div>
           </div>
           <div class="field">
@@ -598,9 +599,11 @@
 
     // Class 1 Exemptions
     document.getElementById('penReq').style.display = isC1 ? 'none' : 'inline';
+    document.getElementById('apaarReq').style.display = isC1 ? 'none' : 'inline';
     document.getElementById('aadharReq').style.display = isC1 ? 'none' : 'inline';
     document.getElementById('prevUdiseReq').style.display = isC1 ? 'none' : 'inline';
     document.getElementById('pen').required = !isC1;
+    document.getElementById('apaar').required = !isC1;
     document.getElementById('aadhar').required = !isC1;
     document.getElementById('prevUdise').required = !isC1;
 
@@ -771,7 +774,7 @@
     }
 
     if(document.getElementById('pen').required) req('pen', data.pen);
-    req('apaar', data.apaar);
+    if(document.getElementById('apaar').required) req('apaar', data.apaar);
     if(document.getElementById('aadhar').required) req('aadhar', data.aadhar);
     if(data.aadhar && !/^\d{12}$/.test(data.aadhar)){ setErr('aadhar','आधार संख्या सही 12 अंकों की होनी चाहिए।'); ok=false; }
 
